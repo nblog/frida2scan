@@ -64,23 +64,30 @@ rpc.exports = {
             return Number(0);
         }
 
-        const retValue = Memory.scanSync(m.base, m.size, aobinfo.pattern);
+        /* access within the valid range */
+        for (const range of Process.enumerateRanges("--x")) {
+            if (range.base.compare(m.base) >= 0 
+            && range.base.add(range.size).compare(m.base.add(m.size)) === -1) {
 
-        if (0 < retValue.length) {
+                const retValue = Memory.scanSync(range.base, range.size, aobinfo.pattern);
 
-            if (1 < retValue.length) {
-                console.log( "[" + aobinfo.notes + "]" + " " + "multiple items");
+                if (0 < retValue.length) {
+
+                    if (1 < retValue.length) {
+                        console.log( "[" + aobinfo.notes + "]" + " " + "multiple items");
+                    }
+
+                    let addr = ptr(retValue[0].address).add(Number(aobinfo.offset));
+
+                    const fntransform = addr_transform[aobinfo.type];
+
+                    return Number(fntransform(addr));
+                }
+
             }
-            
-            let addr = ptr(retValue[0].address).add(Number(aobinfo.offset));
-
-            const fntransform = addr_transform[aobinfo.type];
-
-            return Number(fntransform(addr));
         }
-        else {
-            console.log( "[" + aobinfo.notes + "]" + " " + "no data found");
-        }
+
+        console.log( "[" + aobinfo.notes + "]" + " " + "no data found");
 
         return Number(0);
     },
