@@ -54,12 +54,12 @@ rpc.exports = {
 
     /**
      * 
-     * @param aobinfo { "pattern": "90 90 90 90", "type": "rva", "offset": 0, "notes": "hello" }
+     * @param aobinfo { "pattern": "90 90 90 90", "mode": "rva", "offset": 0, "notes": "hello" }
      * @returns return hit address
      */
     aobscan: function(aobinfo) {
 
-        if (!("pattern" in aobinfo && "type" in aobinfo && "offset" in aobinfo && "notes" in aobinfo)) {
+        if (!("pattern" in aobinfo && "mode" in aobinfo && "offset" in aobinfo && "notes" in aobinfo)) {
             console.log("parameter abnormal.\n" + JSON.stringify(aobinfo));
             return Number(0);
         }
@@ -79,7 +79,7 @@ rpc.exports = {
 
                     let addr = ptr(retValue[0].address).add(Number(aobinfo.offset));
 
-                    const fntransform = addr_transform[aobinfo.type];
+                    const fntransform = addr_transform[aobinfo.mode];
 
                     return Number(fntransform(addr));
                 }
@@ -87,7 +87,7 @@ rpc.exports = {
             }
         }
 
-        console.log( "[" + aobinfo.notes + "]" + " " + "no data found");
+        console.log( "[" + aobinfo.notes + "]" + " " + "not found");
 
         return Number(0);
     },
