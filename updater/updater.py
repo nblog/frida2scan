@@ -1,4 +1,4 @@
-#!%SystemDrive%/Python/Python38/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 
