@@ -44,6 +44,15 @@ class program_updater:
 
             assert( "aob" in pattern and "notes" in pattern and "key" in pattern )
 
+            assert( not pattern["key"] in cache_data )
+
+            ''' dummy: default '''
+            cache_data[ pattern["key"] ] = \
+                eval(pattern.get("value", 0), None, cache_data)
+
+            ''' append: default '''
+            self.update_values[ pattern["key"] ] = { }
+
             ''' searches '''
             for aob in pattern["aob"]:
                 ''' empty '''
@@ -51,14 +60,11 @@ class program_updater:
 
                 assert( "pattern" in aob and "mode" in aob and "offset" in aob )
 
-                assert( not pattern["key"] in self.update_values )
-
-                ''' dummy, default '''
-                cache_data[ pattern["key"] ] = \
-                    eval(pattern.get("value", 0), None, cache_data)
-
                 ''' changed search module '''
-                if (aob.get("module", '')): self.cli.rpc("searchmodule")(aob["module"])
+                if (aob.get("module", '')): 
+                    self.cli.rpc("searchmodule")(aob["module"])
+                    ''' append module '''
+                    self.update_values[ pattern["key"] ]["module"] = aob["module"]
 
                 ''' eval '''
                 offset = eval(aob["offset"], None, cache_data)
@@ -77,12 +83,9 @@ class program_updater:
                 ''' override '''
                 cache_data[ pattern["key"] ] = rva
 
-                ''' append '''
-                self.update_values[ pattern["key"] ] = {
-                    "value": "{:#x}".format(rva),
-                    "module": aob.get("module", ''),
-                }
-
                 break
-        
+
+            ''' append value '''
+            self.update_values[ pattern["key"] ]["value"] = cache_data[ pattern["key"] ]
+
         return 0 < len(self.update_values)
